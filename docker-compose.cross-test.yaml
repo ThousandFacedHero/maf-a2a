@@ -1,0 +1,31 @@
+services:
+  crewai:
+    image: crewai-a2a:latest
+    environment:
+      A2A_PEER_URL: "http://maf:5000"
+      LLM_BASE_URL: "${LLM_BASE_URL}"
+      LLM_API_KEY: "${LLM_API_KEY}"
+      LLM_MODEL: "${LLM_MODEL:-gpt-4o}"
+      A2A_PORT: "5000"
+    ports:
+      - "5001:5000"
+
+  maf:
+    image: maf-a2a:latest
+    environment:
+      A2A_PEER_URL: "http://crewai:5000"
+      LLM_BASE_URL: "${LLM_BASE_URL}"
+      LLM_API_KEY: "${LLM_API_KEY}"
+      LLM_MODEL: "${LLM_MODEL:-gpt-4o}"
+      A2A_PORT: "5000"
+    ports:
+      - "5002:5000"
+
+  test-runner:
+    build: ./tests/cross-framework
+    environment:
+      CREWAI_URL: "http://crewai:5000"
+      MAF_URL: "http://maf:5000"
+    depends_on:
+      - crewai
+      - maf
